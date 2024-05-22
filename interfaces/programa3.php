@@ -102,7 +102,7 @@ else
 ?>    
    <form method="POST" action="programa3.php">
     <tr>
-        <td bgcolor="#CCEECC" align="center"> 
+        <td bgcolor="#CCEECC" align="center" colspan=6> 
             <font FACE="arial" SIZE=2 color="#000044"> <b>Fecha Inicial:</b></font>  
         </td>   
         <td bgcolor="#EEEEEE" align="center"> 
@@ -110,7 +110,7 @@ else
         </td>
     </tr>
     <tr>
-        <td bgcolor="#CCEECC" align="center"> 
+        <td bgcolor="#CCEECC" align="center" colspan=6> 
             <font FACE="arial" SIZE=2 color="#000044"> <b>Fecha Final:</b></font>  
         </td>   
         <td bgcolor="#EEEEEE" align="center"> 

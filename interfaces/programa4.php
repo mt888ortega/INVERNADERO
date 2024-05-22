@@ -1,98 +1,92 @@
 <?php
-include "conexion.php";  // Conexión tiene la información sobre la conexión de la base de datos.
+include "conexion.php";  
 
-// LAs siguientes son líneas de código HTML simple, para crear una página web
+// Líneas de código HTML para crear la página web
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 	Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>DATOS MÁXIMOS, INVERNADERO AUTOMATIZADO # 1</title>
+    <title>Consulta y modificación de valores límite - Invernadero Automatizado #3</title>
 </head>
 <body>
-<table width="80%" align="center" cellpadding="5" border="1" bgcolor="#FFFFFF">
+<table width="80%" align=center cellpadding=5 border=1 bgcolor="#FFFFFF">
     <tr>
-        <td valign="top" align="center" width="80%" colspan="6" bgcolor="green">
-            <img src="img/invernadero.jpg" width="800" height="250">
+        <td valign="top" align=center width=80% colspan=6 bgcolor="green">
+            <img src="img/invernaderoencabezado.jpg" width=800 height=250>
         </td>
     </tr>
     <tr>
-        <td valign="top" align="center" width="80%" colspan="6" bgcolor="green">
-            <h1><font color="white">Consulta y modifica datos MÁXIMOS, INVERNADERO AUTOMATIZADO # 1</font></h1>
+        <td valign="top" align=center width=80% colspan=6 bgcolor="green">
+            <h1><font color=white>Consulta y modificación de valores límite - Invernadero Automatizado #3</font></h1>
         </td>
     </tr>
 <?php
 
-if ((isset($_POST["enviado"]))) {  // Ingresa a este if si el formulario ha sido enviado..., al ingresar actualiza los datos ingresados en el formulario, en la base de datos.
+if (isset($_POST["enviado"])) {
     $enviado = $_POST["enviado"];
     if ($enviado == "S1") {
-        $temp_max = $_POST["temp_max"];  // en estas variables se almacenan los datos de fechas recibidos del formulario HTML inicial
-        $hum_max = $_POST["hum_max"];
-        $mysqli = new mysqli($host, $user, $pw, $db); // Aquí se hace la conexión a la base de datos.
-        // la siguiente linea almacena en una variable denominada sql1, la consulta en lenguaje SQL que quiero realizar a la base de datos. 
-        // se actualiza la tabla de valores máximos
-        $sql1 = "UPDATE datos_maximos SET maximo='$temp_max' WHERE id=1";  
-        $result1 = $mysqli->query($sql1);
+        $mysqli = new mysqli($host, $user, $pw, $db); 
+        
+        // Modificar los máximos
+        $sql1 = "UPDATE datos_limite SET maximo_valor=? WHERE id=?";
+        $stmt1 = $mysqli->prepare($sql1);
+        $stmt1->bind_param("di", $max_valor, $id);
+        
+        // Modificar los mínimos
+        $sql2 = "UPDATE datos_limite SET minimo_valor=? WHERE id=?";
+        $stmt2 = $mysqli->prepare($sql2);
+        $stmt2->bind_param("di", $min_valor, $id);
+        
+        // Array asociativo para almacenar los valores recibidos del formulario
+        $valores = $_POST['valores'];
 
-        $sql2 = "UPDATE datos_maximos SET maximo='$hum_max' WHERE id=2"; 
-        $result2 = $mysqli->query($sql2);
+        foreach ($valores as $id => $datos) {
+            $max_valor = $datos['max'];
+            $min_valor = $datos['min'];
 
-        if (($result1 == 1) && ($result2 == 1)) {
-            $mensaje = "Datos actualizados correctamente";
-        } else {
-            $mensaje = "Inconveniente actualizando datos";
+            // Modificar los máximos
+            $stmt1->execute();
+
+            // Modificar los mínimos
+            $stmt2->execute();
         }
-    } // FIN DEL IF, si ya se han recibido los datos del formulario
-}  // FIN DEL IF, si la variable enviado existe, que es cuando ya se envió el formulario
-  
-// AQUÍ CONSULTA LOS VALORES ACTUALES DE HUMEDAD y TEMPERATURA, PARA PRESENTARLOS EN EL FORMULARIO
 
-// CONSULTA TEMPERATURA MÁXIMA
-$mysqli = new mysqli($host, $user, $pw, $db); // Aquí se hace la conexión a la base de datos.
-$sql1 = "SELECT * FROM datos_maximos WHERE id=1"; 
-$result1 = $mysqli->query($sql1);
-$row1 = $result1->fetch_array(MYSQLI_NUM);
-$temp_max = $row1[3];  
-
-// CONSULTA HUMEDAD MÁXIMA
-$sql2 = "SELECT * FROM datos_maximos WHERE id=2"; 
-$result2 = $mysqli->query($sql2);
-$row2 = $result2->fetch_array(MYSQLI_NUM);
-$hum_max = $row2[3];  
-
-if ((isset($_GET["mensaje"]))) {
-    $mensaje = $_GET["mensaje"];
-    echo '<tr>    
-            <td bgcolor="#EEEEFF" align="center" colspan="2"> 
-                <font FACE="arial" SIZE="2" color="#000044"> <b>'.$mensaje.'</b></font>  
-            </td>    
-          </tr>';
+        $mensaje = "Datos actualizados correctamente";
+    } 
 }
 ?>    
 
-    <form method="POST" action="programa4.php">
-        <tr>    
-            <td bgcolor="#CCEECC" align="center"> 
-                <font FACE="arial" SIZE="2" color="#000044"> <b>Valor Máximo Temperatura: </b></font>  
-            </td>    
-            <td bgcolor="#EEEEEE" align="center"> 
-                <input type="number" name="temp_max" value="<?php echo $temp_max; ?>" required>  
-            </td>    
-        </tr>
-        <tr>    
-            <td bgcolor="#CCEECC" align="center"> 
-                <font FACE="arial" SIZE="2" color="#000044"> <b>Valor Máximo Humedad: </b></font>  
-            </td>    
-            <td bgcolor="#EEEEEE" align="center"> 
-                <input type="number" name="hum_max" value="<?php echo $hum_max; ?>" required>  
-            </td>    
-        </tr>
-        <tr>    
-            <td bgcolor="#EEEEEE" align="center" colspan="2"> 
-                <input type="hidden" name="enviado" value="S1">  
-                <input type="submit" value="Actualizar" name="Actualizar">  
-            </td>    
-        </tr>
-    </form>  
+<form method=POST action="programa4.php">
+    <tr>    
+        <td bgcolor="#CCEECC" align=center> 
+            <font FACE="arial" SIZE=2 color="#000044"> <b>Dato</b></font>  
+        </td>    
+        <td bgcolor="#CCEECC" align=center> 
+            <font FACE="arial" SIZE=2 color="#000044"> <b>Máximo</b></font>  
+        </td>    
+        <td bgcolor="#CCEECC" align=center> 
+            <font FACE="arial" SIZE=2 color="#000044"> <b>Mínimo</b></font>  
+        </td>    
+    </tr>
+    <?php
+        $mysqli = new mysqli($host, $user, $pw, $db);
+        $sql = "SELECT * FROM datos_limite";
+        $result = $mysqli->query($sql);
+        while ($row = $result->fetch_assoc()) {
+            echo '<tr>';
+            echo '<td>'.$row['nombre_dato_limite'].'</td>';
+            echo '<td><input type="number" name="valores['.$row['id'].'][max]" value="'.$row['maximo_valor'].'"></td>';
+            echo '<td><input type="number" name="valores['.$row['id'].'][min]" value="'.$row['minimo_valor'].'"></td>';
+            echo '</tr>';
+        }
+    ?>
+    <tr>    
+        <td bgcolor="#EEEEEE" align=center colspan=3> 
+            <input type="hidden" name="enviado" value="S1">  
+            <input type="submit" value="Actualizar" name="Actualizar">  
+        </td>    
+    </tr>
+</form>    
 
 </table>
 </body>
